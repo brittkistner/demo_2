@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block script %}
+    <script type="text/javascript" src="{% static 'js/receivers.js' %}"></script>
+{% endblock script %}
+{% block content %}
+
+    <h1>FRIEND PAGE</h1>
+    {% for receiver in receivers %}
+    <button class="receiver_page" id="{{ receiver.id }}">{{ receiver.name }}</button>
+{#       if/else recommend gift or button to query more info #}
+    {% endfor %}
+    done
+{% endblock content %}

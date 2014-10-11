@@ -5,7 +5,8 @@ from amazon.api import AmazonAPI
 # from social.backends.google import GooglePlusAuth
 from demo2.settings import AMAZON_ASSOC_TAG, config, AMAZON_SECRET_KEY,AMAZON_ACCESS_KEY #SOCIAL_AUTH_GOOGLE_PLUS_KEY,
 import amazonproduct
-from gift_search.models import Product, WordReceiver
+from gift_search.models import Product, WordReceiver, Receiver, ProductReceiver
+import random
 
 # plus_scope = ' '.join(GooglePlusAuth.DEFAULT_SCOPE)
 amazon = AmazonAPI(AMAZON_ACCESS_KEY, AMAZON_SECRET_KEY, AMAZON_ASSOC_TAG)
@@ -18,10 +19,17 @@ def home(request):
     #     "plus_scope": plus_scope,
     #     'plus_id':  SOCIAL_AUTH_GOOGLE_PLUS_KEY
     # }
+    #LOGIN PAGE
     return render(request, "home.html")
 
-def friends(request):
-    return render(request, "friends.html")
+def receivers(request):
+    user = request.user
+    receivers = user.receivers.all()
+    print receivers
+    data = {
+        'receivers': receivers
+    }
+    return render(request, "receivers.html", data)
 
     # user_social_auth = request.user.social_auth.filter(provider='facebook').first()
     # graph = facebook.GraphAPI(user_social_auth.extra_data['access_token'])
@@ -34,19 +42,77 @@ def friends(request):
     # # user = graph.get_object(profile_data["name"])
     # # print user
     #create a receiver object and set in the window?
-    # return render(request, "friends.html", profile_data)
+
+def receiver_page(request, receiver_id): #FINISH
+    product_list = Product.objects.all()
+    length = len(product_list)
+    product_to_rank = product_list[random.randrange(length)]
+    print product_to_rank
+    # receivers_product_list = receiver.products.all()
+    # while product_to_rank in receivers_product_list:
+    #     rand_num = len(product_list)
+    #     product_to_rank = Product.objects.get(pk=rand_num)
+    # pull all products linked to receiver and put info on page
+    # figure out top 3
+    data = {
+        'product_to_rank': product_to_rank,
+    }
+    return render(request, "receivers_page.html", data)
 
 
-def create_words(features_list, receiver):
-    #after creating product create words:
+def create_words(receiver_id, asin,score):  #FINISH
+    if score == "up":
+        score = 1
+    else:
+        score = -1
+
+    product = Product.objects.get(asin=asin)
+    receiver = Receiver.objects.get(id=receiver_id)
+    receiver_word_list = receiver.words
+    features_list = product.features
+
     for feature in features_list:
         word_list = feature.split(' ')
         for word in word_list:
-            WordReceiver(receiver=receiver, name=word,ranking=0)
+            if word in receiver_word_list:
+                #how to change word ranking, add method to WordReceiver, this may work???
+            else:
+                WordReceiver(receiver=receiver, name=word,ranking=score)
     return True
 
-def get_gifts(request, receiver_id=1):
-    receiver = receiver_id
+def get_top_three(receiver_id):
+    
+
+
+def create_productreceiver(request, receiver_id, score, asin):  #FINISH and change method name
+    product_receiver = ProductReceiver.objects.get(product__asin=asin,receiver__id=receiver_id)
+#     do a try (if doesn't exist then use code above for product_receiver) if it does then handle error and except error raise here.
+    #a  product has been added to the receiver list, must rank the words
+    create_words(receiver_id,asin,score)
+    get_top_three(receiver_id)
+    return render(request) #WHAT ELSE???
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+def get_gifts(request, receiver_id=2):
+    receiver = Receiver.objects.get(pk=receiver_id)
 
 
     #ITEM LOOKUP-Python Amazon Simple Product API#
@@ -68,6 +134,7 @@ def get_gifts(request, receiver_id=1):
     # This features list will then be incremented or decremented based on user feedback.
     products_dict = {}
     for item in item_ids:
+        receiver = Receiver.objects.get(pk=receiver_id)
         product = amazon.lookup(ItemId=item_ids[item])
         features_list = product.features
         price = product.list_price[0] #(30.0,'USD')
@@ -75,7 +142,9 @@ def get_gifts(request, receiver_id=1):
         name = product.title
         asin = product.asin
         # round FIGURE OUT
-        products_dict[asin]=Product(asin=asin, price=price, image_url=image_url, name=name)
+        product = Product(asin=asin, price=price, image_url=image_url, name=name)
+        products_dict[asin]= product
+        ProductReceiver(product=product,receiver=receiver)
         # round = models.IntegerField(default=None)
 
         create_words(features_list, receiver) #True

@@ -2,7 +2,8 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 class User(AbstractUser):
-    fb_auth_key = models.CharField(max_length=255)
+    # fb_auth_key = models.CharField(max_length=255)
+    name = models.CharField(max_length=255)
 
     def __unicode__(self):
         return u"{}".format(self.first_name)
@@ -26,11 +27,11 @@ class WordReceiver(models.Model):
     #another to find top words
 
 class Product(models.Model):
-    receivers = models.ManyToManyField(Receiver, through="ProductReceiver", related_name="products")
+    receivers = models.ManyToManyField(Receiver, through="ProductReceiver", related_name="products",default=None)
     asin = models.CharField(max_length=30, primary_key=True)
     price = models.FloatField()
     image_url = models.CharField(max_length=255)
-    name = models.CharField(max_length=30)
+    name = models.CharField(max_length=255)
     # round = models.IntegerField(default=None)
     #anything else?
 
