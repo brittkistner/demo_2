@@ -40,12 +40,23 @@ class Migration(migrations.Migration):
             bases=(models.Model,),
         ),
         migrations.CreateModel(
+            name='Feature',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('feature', models.TextField(default=None)),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
             name='Product',
             fields=[
                 ('asin', models.CharField(max_length=30, serialize=False, primary_key=True)),
                 ('price', models.FloatField()),
                 ('image_url', models.CharField(max_length=255)),
-                ('name', models.CharField(max_length=30)),
+                ('name', models.CharField(max_length=255)),
+                ('review', models.TextField(default=None)),
             ],
             options={
             },
@@ -96,7 +107,13 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='product',
             name='receivers',
-            field=models.ManyToManyField(related_name=b'products', through='gift_search.ProductReceiver', to='gift_search.Receiver'),
+            field=models.ManyToManyField(default=None, related_name=b'products', through='gift_search.ProductReceiver', to='gift_search.Receiver'),
+            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='feature',
+            name='product',
+            field=models.ForeignKey(related_name=b'features', to='gift_search.Product'),
             preserve_default=True,
         ),
     ]

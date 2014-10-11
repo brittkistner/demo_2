@@ -32,8 +32,21 @@ class Product(models.Model):
     price = models.FloatField()
     image_url = models.CharField(max_length=255)
     name = models.CharField(max_length=255)
-    # round = models.IntegerField(default=None)
-    #anything else?
+    review = models.TextField(default=None)
+
+    def __unicode__(self):
+        return u"{}".format(self.name)
+
+class Feature(models.Model):
+    product = models.ForeignKey(Product, related_name="features")
+    feature = models.TextField(default=None)
+
+    def __unicode__(self):
+        return u"{}".format(self.feature)
+
+# class Review(models.Model):
+#     product = models.ForeignKey(Product, related_name="features")
+#     review = models.TextField(default=None)
 
 class ProductReceiver(models.Model):
     score = models.IntegerField(default=0)

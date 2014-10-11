@@ -3,9 +3,10 @@ from django.shortcuts import render
 # import facebook
 from amazon.api import AmazonAPI
 # from social.backends.google import GooglePlusAuth
+from django.views.decorators.csrf import csrf_exempt
 from demo2.settings import AMAZON_ASSOC_TAG, config, AMAZON_SECRET_KEY,AMAZON_ACCESS_KEY #SOCIAL_AUTH_GOOGLE_PLUS_KEY,
 import amazonproduct
-from gift_search.models import Product, WordReceiver, Receiver, ProductReceiver
+from gift_search.models import Product, WordReceiver, Receiver, ProductReceiver,Feature
 import random
 
 # plus_scope = ' '.join(GooglePlusAuth.DEFAULT_SCOPE)
@@ -13,6 +14,9 @@ amazon = AmazonAPI(AMAZON_ACCESS_KEY, AMAZON_SECRET_KEY, AMAZON_ASSOC_TAG)
 receiver = None
 import time
 
+##############
+# HOME/LOGIN #
+##############
 
 def home(request):
     # data = {
@@ -21,6 +25,10 @@ def home(request):
     # }
     #LOGIN PAGE
     return render(request, "home.html")
+
+############################
+# DISPLAY USER'S RECEIVERS #
+############################
 
 def receivers(request):
     user = request.user
@@ -43,68 +51,146 @@ def receivers(request):
     # # print user
     #create a receiver object and set in the window?
 
-def receiver_page(request, receiver_id): #FINISH
+#####################################
+# DISPLAY RECEIVER PROFILE FOR USER #
+#####################################
+
+def receiver_page(request, receiver_id): #FINISH -> get score for each product and work on products to rank
     product_list = Product.objects.all()
+    receiver = Receiver.objects.get(pk=receiver_id)
     length = len(product_list)
     product_to_rank = product_list[random.randrange(length)]
-    print product_to_rank
     # receivers_product_list = receiver.products.all()
     # while product_to_rank in receivers_product_list:
     #     rand_num = len(product_list)
     #     product_to_rank = Product.objects.get(pk=rand_num)
-    # pull all products linked to receiver and put info on page
+
+    products = receiver.products.all()
+    #grab product ranking
+
     # figure out top 3
     data = {
         'product_to_rank': product_to_rank,
+        'products': products
     }
     return render(request, "receivers_page.html", data)
 
 
-def create_words(receiver_id, asin,score):  #FINISH
+
+
+#####################
+# RANKING A PRODUCT #
+####################
+def create_words(receiver, asin,score):  #FINISH
     if score == "up":
         score = 1
     else:
         score = -1
 
     product = Product.objects.get(asin=asin)
-    receiver = Receiver.objects.get(id=receiver_id)
+    # receiver = Receiver.objects.get(id=receiver_id)
     receiver_word_list = receiver.words
-    features_list = product.features
-
-    for feature in features_list:
-        word_list = feature.split(' ')
+    if #check if features exist for product
+        features_list = product.features.all()
+        for feature in features_list:
+            word_list = feature.split(' ')
+            for word in word_list:
+                if word in receiver_word_list:
+                    pass
+                    #how to change word ranking, add method to WordReceiver, this may work???
+                else:
+                    WordReceiver(receiver=receiver, name=word,ranking=score)
+    #if not, check if review exists for product
+    elif:
+        if product.review != None:
+            review = product.review
+            word_list = review.split(' ')
+            for word in word_list:
+                if word in receiver_word_list:
+                    pass
+                    #how to change word ranking, add method to WordReceiver, this may work???
+                else:
+                    WordReceiver(receiver=receiver, name=word,ranking=score)
+    #if not then use name
+    else:
+        name = product.name
+        word_list = name.split(' ')
         for word in word_list:
             if word in receiver_word_list:
+                pass
                 #how to change word ranking, add method to WordReceiver, this may work???
             else:
                 WordReceiver(receiver=receiver, name=word,ranking=score)
+
+    print 'made it past word creation!!'
+
+
     return True
 
-def get_top_three(receiver_id):
-    
+#Query on words for top three
+def get_top_three(receiver):
+    #query on receiver.words for top 3 ranked
+    word_list = receiver.words.order_by('ranking')[:3]
+    return word_list
 
+def get_new_products(word_list):  #FINISH LOOK AT NOTES
+    products = Product.objects.all()
+    for word in word_list:
+        new_products = amazon.search(Keywords=word, SearchIndex='All')
+        for i, new_product in enumerate(new_products):
+            pass
+        # for i, new_product in enumerate(products):##FINISH
+        #     #for each word, check if in products
+        #     #if new_product in products, NOT SURE IF THIS WILL WORK
+        #     # else:
+        #     # price = new_product.price_and_currency[0] #(30.0,'USD')
+        #     # image_url = new_product.large_image_url
+        #     # name = new_product.title
+        #     # asin = new_product.asin
+        #     # new_product = Product(asin=asin, price=price, image_url=image_url, name=name).save()
+        #     # ProductReceiver(product=product,receiver=receiver).save()
+        return True
 
+@csrf_exempt
 def create_productreceiver(request, receiver_id, score, asin):  #FINISH and change method name
+    print 'made it to productreceiver'
     product_receiver = ProductReceiver.objects.get(product__asin=asin,receiver__id=receiver_id)
 #     do a try (if doesn't exist then use code above for product_receiver) if it does then handle error and except error raise here.
     #a  product has been added to the receiver list, must rank the words
-    create_words(receiver_id,asin,score)
-    get_top_three(receiver_id)
-    return render(request) #WHAT ELSE???
+    receiver = Receiver.objects.get(id=receiver_id)
+    create_words(receiver,asin,score)
+    #Returns Top 3 Ranking words
+    word_list = get_top_three(receiver)
+    #Search Amazon for products given word_list
+    get_new_products(word_list)
+    return render(request) #what do I return?
+
+
+##################
+# UPDATE HISTORY #
+##################
+
+def update_history(request, receiver_id): #Not DRY
+    receiver = Receiver.objects.get(pk=receiver_id)
+    products = receiver.products.all()
+    data = {
+        'products': products,
+    }
+
+    return render(request, "update_history.html", data)
 
 
 
+##########################
+# UPDATE RECOMMENDATIONS #
+#########################
+
+#COMPLETE
 
 
-
-
-
-
-
-
-
-
-
+####################
+# LOAD NEW PRODUCT #
+####################
 
 
 
@@ -136,59 +222,35 @@ def get_gifts(request, receiver_id=2):
     for item in item_ids:
         receiver = Receiver.objects.get(pk=receiver_id)
         product = amazon.lookup(ItemId=item_ids[item])
-        features_list = product.features
-        price = product.list_price[0] #(30.0,'USD')
+        price = product.price_and_currency[0] #(30.0,'USD')
         image_url = product.large_image_url
         name = product.title
         asin = product.asin
-        # round FIGURE OUT
-        product = Product(asin=asin, price=price, image_url=image_url, name=name)
+        product = Product(asin=asin, price=price, image_url=image_url, name=name).save()
+        if product.features != []:
+            features_list = product.features
+            for feature in features_list:
+                Feature(product=product, feature=feature).save()
+        elif product.editorial_review !=[]:
+            review = product.editorial_review
+            product.review = review
+            product.save()
         products_dict[asin]= product
-        ProductReceiver(product=product,receiver=receiver)
-        # round = models.IntegerField(default=None)
-
-        create_words(features_list, receiver) #True
+        ProductReceiver(product=product,receiver=receiver).save()
         time.sleep(1)
 
     data = {
        'products': products_dict
-    } #anything else?
+    }
 
     print data
     return render(request, "get_gifts.html", data)
 
-#
-# def get_new_products(word):
-#     products = amazon.search(Keywords=word, SearchIndex='All') #'word'
-#     for i, product in enumerate(products):  #check on this
-#         features_list = product.features
-#         price = product.list_price[0] #(30.0,'USD')
-#         image_url = product.large_image_url
-#         name = product.title
-#         asin = product.asin
-#         # round FIGURE OUT
-#         new_product = Product.objects.create(asin, price, image_url, name)
-#         # round = models.IntegerField(default=None)
-#
-#         create_words(features_list, receiver) #True
-#
-#         data = {
-#         'price': price,
-#         'image_url': image_url,
-#         'name': name,
-#         'asin': asin,
-#         # 'category': category
-#     } #anything else?
-#
-#         #ajax call
-#
-# def gift_ranking(request, asin):
-#     #look up product
-#     #increment and decrement rankings
-#     #word_list = find top three words, could you return as a comma deliminated string?
-#     #apply weighting???
-#
-# #once all items are ranked (and clicked on then will need to figure out the tops three words.  Once top three words confirmed will call get_new_products
+
+
+
+
+
 
 
 

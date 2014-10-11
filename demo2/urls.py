@@ -7,11 +7,15 @@ urlpatterns = patterns('',
     url(r'^receivers/$', 'gift_search.views.receivers', name='receivers'),
     #Populates initial page for a user after choosing a receiver#
     url(r'^receiver_page/(?P<receiver_id>\w+)/$', 'gift_search.views.receiver_page', name='receiver_page'),
-    url(r'^receiver_page/(?P<receiver_id>\w+)/(?P<score>\w+)/(?P<asin>\w+)/', 'gift_search.views.create_productreceiver', name='create_productreceiver'),
+    #Save Product Receiver -> POST request
+    url(r'^receiver_page/(?P<receiver_id>\w+)/(?P<score>\w+)/(?P<asin>\w+)/$', 'gift_search.views.create_productreceiver', name='create_productreceiver'),
+    #Update History -> GET request
+    url(r'^update_history/(?P<receiver_id>\w+)/$', 'gift_search.views.update_history', name='update_history'),
 
 
 
-    url(r'^get_gifts/(?P<receiver_id>\w+)/$', 'gift_search.views.get_gifts', name='get_gifts'),
+
+    # url(r'^get_gifts/(?P<receiver_id>\w+)/$', 'gift_search.views.get_gifts', name='get_gifts'),
 
     # PYTHON SOCIAL AUTH #
     # url('', include('social.apps.django_app.urls', namespace='social')),
