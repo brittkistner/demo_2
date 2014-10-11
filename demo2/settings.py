@@ -37,6 +37,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'social.apps.django_app.default',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -47,6 +48,8 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    # PYTHON SOCIAL AUTH #
+    'social.apps.django_app.middleware.SocialAuthExceptionMiddleware'
 )
 
 ROOT_URLCONF = 'demo2.urls'
@@ -83,10 +86,49 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-# Access Key ID:
-# 'AKIAIWQB252PBOI3WW3A'
-# Secret Access Key:
-# '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'
+#AUTH MODEL
+AUTH_USER_MODEL = 'gift_search.User'
+LOGIN_URL = '/'
+
+
+#PYTHON SOCIAL AUTH #
+# TEMPLATE_CONTEXT_PROCESSORS = (
+#     'django.contrib.auth.context_processors.auth',
+#     'social.apps.django_app.context_processors.backends',
+#     'social.apps.django_app.context_processors.login_redirect',
+# )
+
+#Google AUTH #
+
+# AUTHENTICATION_BACKENDS = (
+#     # 'social.backends.facebook.FacebookOAuth2',
+#     'django.contrib.auth.backends.ModelBackend',
+#     'social.backends.google.GooglePlusAuth',
+# )
+
+# SOCIAL_AUTH_FACEBOOK_KEY = '801249369938630'
+# SOCIAL_AUTH_FACEBOOK_SECRET = '47658630be8efa825387db72764385d8'
+# SOCIAL_AUTH_FACEBOOK_SCOPE = ['email', 'public_profile', 'user_photos', 'user_friends']
+# SOCIAL_AUTH_FACEBOOK_EXTRA_DATA = []
+
+#GOOGLE AUTH#
+# SOCIAL_AUTH_GOOGLE_PLUS_KEY = '337098422696-gn08i76vdoatrrcchoh63f37qtqd8c30.apps.googleusercontent.com'
+# SOCIAL_AUTH_GOOGLE_PLUS_SECRET = 'GgBK3NkQaoKMTSvJLRnR_FoW'
+# LOGIN_REDIRECT_URL = 'friends'
+
+
+#AMAZONAPI#
+AMAZON_ACCESS_KEY = 'AKIAIWQB252PBOI3WW3A'
+AMAZON_SECRET_KEY = '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'
+AMAZON_ASSOC_TAG = 'birtgift0e-20'
+
+#amazonproduct
+config = {
+    'access_key': 'AKIAIWQB252PBOI3WW3A',
+    'secret_key': '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',
+    'associate_tag': 'birtgift0e-20',
+    'locale': 'us'
+}
 
 try:
     from local_settings import *

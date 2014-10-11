@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block script %}
+{#    <script type="text/javascript" src="{% static 'js/home.js' %}"></script>#}
+{% endblock script %}
+{% block content %}
+
+    <h1>FUN STUFF HERE</h1>
+    HOME
+    LOGIN
+
+{#    <div id="signinButton">#}
+{#        <span class="g-signin" data-scope="{{ plus_scope }}"#}
+{#                               data-clientid="{{ plus_id }}"#}
+{#                               data-redirecturi="postmessage"#}
+{#                               data-accesstype="offline"#}
+{#                               data-cookiepolicy="single_host_origin"#}
+{#                               data-callback="signInCallback">#}
+{#        </span>#}
+{#    </div>#}
+{##}
+{#    <form id="google-plus" method="post" action="{% url 'social:complete' "google-plus" %}">{% csrf_token %}#}
+{#        <input id="at" type="hidden" name="access_token" value="" />#}
+{#        <input id="code" type="hidden" name="code" value="" />#}
+{#    </form>#}
+{% endblock content %}

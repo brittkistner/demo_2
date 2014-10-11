@@ -1,0 +1,16 @@
+Django==1.7
+PyJWT==0.2.1
+bottlenose==0.6.2
+facebook-sdk==0.4.0
+lxml==3.4.0
+oauthlib==0.6.3
+psycopg2==2.5.4
+python-amazon-product-api==0.2.8
+python-amazon-simple-product-api==2.0.0
+python-dateutil==2.2
+python-openid==2.2.5
+python-social-auth==0.2.1
+requests==2.4.3
+requests-oauthlib==0.4.1
+six==1.8.0
+wsgiref==0.1.2
