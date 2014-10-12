@@ -1,15 +1,22 @@
 {% extends 'base.html' %}
 {% load staticfiles %}
 
-{% block script %}
+{% block header %}
     <script type="text/javascript" src="{% static 'js/receivers.js' %}"></script>
-{% endblock script %}
+{% endblock header %}
 {% block content %}
 
     <h1>FRIEND PAGE</h1>
-    {% for receiver in receivers %}
-    <button class="receiver_page" id="{{ receiver.id }}">{{ receiver.name }}</button>
-{#       if/else recommend gift or button to query more info #}
-    {% endfor %}
-    done
+
+    <div id="all_friends">
+        {% for receiver in receivers %}
+            <img src="{{ receiver.img.url }}" width="200" height="200">
+            <p>{{ receiver.name }}</p>
+            <button class="purchase_gift" id="{{ receiver.id }}">Purchase Top Recommended Gift</button>
+            <button class="receiver_page" id="{{ receiver.id }}"><a href="{% url "receiver_page" receiver.id %}">Find Gift!</a></button>
+        {% endfor %}
+    </div>
+
+    <button id="add_friend">Add new friend</button>
+
 {% endblock content %}

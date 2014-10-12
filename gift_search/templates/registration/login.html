@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+
+{% block header %}
+    <script type="text/javascript" src="{% static 'js/jquery.leanModal.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/login.js' %}"></script>
+
+
+<link type="text/css" rel="stylesheet" href="{% static 'css/home_login.css' %}" />
+{% endblock header %}
+{% block content %}
+    <div class="container">
+        <div class="well">
+            <div class="row info">
+                <h2>HEADER AND SOME OTHER STUFF</h2>
+                <p>
+                    Pivot disrupt minimum viable product viral entrepreneur engaging ideate entrepreneur ship it pair programming. Engaging personas big data actionable insight thinker-maker-doer earned media experiential. Disrupt moleskine viral thought leader big data disrupt pivot human-centered design actionable insight Steve Jobs. Long shadow ship it user centered design engaging unicorn SpaceTeam actionable insight workflow intuitive SpaceTeam ship it latte grok entrepreneur.
+                </p>
+            </div>
+        </div>
+        <div class="row login">
+            <div class="col-sm-4 col-sm-offset-5">
+                 <a id="modal_trigger" href="#modal" class="btn btn-default btn-lg">Login/Register</a>
+            </div>
+        </div>
+    </div>
+
+{###### MODAL ######}
+    <div id="modal" class="popupContainer" style="display:none;">
+        <header class="popupHeader">
+            <span class="header_title">Login</span>
+            <span class="modal_close"><i class="fa fa-times"></i></span>
+        </header>
+        <section class="popupBody">
+            <div class="user_login">
+                <form method="post" action=".">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <input class="btn btn-default" type="submit" value="Log in"><a class="btn btn-default" href="{% url 'register' %}">Sign Up</a>
+                </form>
+            </div>
+            <a href="{% url 'password_reset' %}">Forgot password?</a>
+        </section>
+    </div>
+{% endblock %}

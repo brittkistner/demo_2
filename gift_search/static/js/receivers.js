@@ -15,4 +15,25 @@ $(document).ready(function(){
             }
         });
     });
+
+    $("#add_friend").on("click", function(){
+        createReceiver();
+        var friendData = JSON.stringify(friend_information);
+        $.ajax({
+            url:'/add_friend/',
+            type: 'POST',
+            success: function(response){
+                console.log('success');
+                $('#all_friends').html(response);
+            },
+            error: function(response){
+                console.log(response.body);
+            }
+        });
+    });
+//
+//    var createReceiver = function(){
+//
+//    }
+
 });

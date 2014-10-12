@@ -1,13 +1,13 @@
 {% extends 'base.html' %}
 {% load staticfiles %}
 
-{% block script %}
-    <script type="text/javascript" src="{% static 'js/gift_to_rank.js' %}"></script>
-{% endblock script %}
+{% block header %}
+    <script type="text/javascript" src="{% static 'js/receivers_page.js' %}"></script>
+{% endblock header %}
 {% block content %}
 <h2>Product to Rank</h2>
 
-<img src="{{ product_to_rank.image_url }}" width="200" height="200" class='giftToRank' id="{{ product_to_rank.asin }}">
+<img src="{{ product_to_rank.image_url }}" width="200" height="200" class='giftToRank' data-id="{{ product_to_rank.asin }}">
 <h4>{{ product_to_rank.name }}</h4>
 <button class="ranking" id="up">Like</button>
 <button class="ranking" id="down">Dislike</button>
@@ -20,4 +20,16 @@
 {{ product.price }}
 {#    add product score#}
 {% endfor %}
+<div id="history">
+
+</div>
+
+
+<h2>Top Receommendations</h2>
+<div id="top_recommendations">
+
+</div>
+
 {% endblock content %}
+
+

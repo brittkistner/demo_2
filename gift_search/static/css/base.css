@@ -1,0 +1,22 @@
+html,body
+{
+height:100%;
+}
+
+body
+{
+min-height: 100%;
+background-image:url('../img/silver_scales.png');
+/*background-position: center;*/
+/*background-size: cover;*/
+width: 100%;
+}
+
+#cartoon_baloons{
+    min-height: 100%;
+    background-image:url('../img/cartoon_baloons.png');
+    /*background-position: ;*/
+    /*background-size: cover;*/
+    background-repeat: no-repeat;
+    width: 100%;
+}

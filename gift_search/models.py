@@ -13,6 +13,7 @@ class Receiver(models.Model):
     name = models.CharField(max_length=30)
     birthday = models.DateField() #what will this look like?
     age = models.IntegerField(default=None)
+    img = models.ImageField(upload_to='receiver_images', blank=True, null=True)
 
     def __unicode__(self):
         return u"{}".format(self.name)
@@ -29,13 +30,40 @@ class WordReceiver(models.Model):
 class Product(models.Model):
     receivers = models.ManyToManyField(Receiver, through="ProductReceiver", related_name="products",default=None)
     asin = models.CharField(max_length=30, primary_key=True)
-    price = models.FloatField()
-    image_url = models.CharField(max_length=255)
-    name = models.CharField(max_length=255)
+    price = models.FloatField(null=True)
+    image_url = models.CharField(max_length=255, null=True)
+    name = models.CharField(max_length=255, null=True)
     review = models.TextField(default=None)
 
     def __unicode__(self):
         return u"{}".format(self.name)
+
+    def words(self):
+        word_dict = {}
+        if self.features:
+            features_list = self.features.all()
+            for feature in features_list:
+                word_list = feature.feature.split(' ')
+                for word in word_list:
+                    if word in word_dict:
+                        word_dict[word] += 1
+                    else:
+                        word_dict[word] = 1
+        elif self.review:
+            word_list = self.review.split(' ')
+            for word in word_list:
+                if word in word_dict:
+                    word_dict[word] += 1
+                else:
+                    word_dict[word] = 1
+        else:
+            title_list = self.name.split(' ')
+            for word in title_list:
+                if word in word_dict:
+                    word_dict[word] += 1
+                else:
+                    word_dict[word] = 1
+        return word_dict
 
 class Feature(models.Model):
     product = models.ForeignKey(Product, related_name="features")
