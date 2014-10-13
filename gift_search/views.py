@@ -81,6 +81,8 @@ def receivers(request):
     receiver_list = user.receivers.all()
     birthday_receivers = []
     for receiver in receiver_list:
+        # This logic could be moved to the Receiver model
+        # Should also put in some comments to explain what you're checking for and why you need to replace the year to today's year
         birthday_no_year = receiver.birthday
         birthday_no_year=birthday_no_year.replace(year=today.year)
         print birthday_no_year
@@ -119,27 +121,33 @@ def receivers(request):
 def init_products(receiver):
 
     #ITEM LOOKUP-Python Amazon Simple Product API#
-    item_ids = {'Books':'1423146735',
-                'Music':'B00MRHANNI',
-                'Mens':'B00INNBILG',
-                'Womens': 'B00KGT9GUU',
-                'Electronics': 'B00DR0PDNE',
-                'Gourmet Food': 'B008UOUGN4',
-                'Movies & TV': 'B00NTSYP3S',
-                "Women's Jewelry": 'B00BC4IR0I',
-                'Sports & Outdoors':'B004J2GUOU',
-                'Toys & Games': 'B004S8F7QM',
-                'Video Games': 'B00DD0B1R0',
-                'Gift Card': 'B00A48G0D4',
-                }
+    item_ids = {
+        'Books':'1423146735',
+        'Music':'B00MRHANNI',
+        'Mens':'B00INNBILG',
+        'Womens': 'B00KGT9GUU',
+        'Electronics': 'B00DR0PDNE',
+        'Gourmet Food': 'B008UOUGN4',
+        'Movies & TV': 'B00NTSYP3S',
+        "Women's Jewelry": 'B00BC4IR0I',
+        'Sports & Outdoors':'B004J2GUOU',
+        'Toys & Games': 'B004S8F7QM',
+        'Video Games': 'B00DD0B1R0',
+        'Gift Card': 'B00A48G0D4',
+    }
 
     #Creates Product instance for each item. Iterates through item_ids, creating products.
     # After product created, sent to create_words function to create a word instance for the features list.
     # This features list will then be incremented or decremented based on user feedback.
 
     for item in item_ids:
+        # Might be good to put some of this logic in a specific function, maybe on the Product model since
+        # you're basically trying to save a valid amazon product to a local Product
         amazon_product = amazon.lookup(ItemId=item_ids[item])
         # product.get_attribute('ProductGroup')
+        
+        # It's best practice to "except" a specific error, not just any
+        # Do you really want to return False in all of these cases or should you just continue to the next item ID?
         try:
             price = amazon_product.price_and_currency[0]  #(30.0,'USD')
         except:
@@ -177,6 +185,7 @@ def init_products(receiver):
 #########################
 def init_receiver_page(receiver):
     data = {}
+    # Could just get a random product from the database - Product.objects.order_by('?')[:1]
     all_products = Product.objects.all()
     length = len(all_products)
     product_to_rank = all_products[random.randrange(length)]
@@ -189,6 +198,7 @@ def init_receiver_page(receiver):
     for product in all_products:
         score = 0
         product_words = product.words()
+        # could do some of the filtering in the query instead of python? receiver.words.filter(name__in=product_words)
         for receiver_word in receiver.words.all():
             if receiver_word.name in product_words:
                 score += receiver_word.ranking * product_words[receiver_word.name]
@@ -210,6 +220,7 @@ def init_receiver_page(receiver):
 @login_required()
 def receiver_page(request, receiver_id):
     receiver = Receiver.objects.get(pk=receiver_id)
+    # Could use Product.objects.exists() or Product.objects.count() > 0 instead
     if Product.objects.all():
         data = init_receiver_page(receiver)
     else:
@@ -232,6 +243,8 @@ def create_words(receiver, asin, score):
     product = Product.objects.get(asin=asin)
     print product.review
 
+    # These if statements all seem fairly similar, could abstract out the looping `for word in word_list` part 
+    # and WordReceiver creation into a separate function you call
     if product.features.all():
         features_list = product.features.all()
         for feature in features_list:
@@ -241,7 +254,7 @@ def create_words(receiver, asin, score):
                     receiver_word = WordReceiver.objects.get(name=word, receiver=receiver)
                     receiver_word.ranking += score
                     receiver_word.save()
-                except:
+                except WordReceiver.DoesNotExist:
                     WordReceiver(receiver=receiver, name=word, ranking=score).save()
     #if not, check if review exists for product
     elif product.review != "N/A":
@@ -253,7 +266,7 @@ def create_words(receiver, asin, score):
                 receiver_word = WordReceiver.objects.get(name=word, receiver=receiver)
                 receiver_word.ranking += score
                 receiver_word.save()
-            except:
+            except WordReceiver.DoesNotExist:
                 WordReceiver(receiver=receiver, name=word, ranking=score).save()
     #if not then use name
     else:
@@ -264,7 +277,7 @@ def create_words(receiver, asin, score):
                 receiver_word = WordReceiver.objects.get(name=word, receiver=receiver)
                 receiver_word.ranking += score
                 receiver_word.save()
-            except:
+            except WordReceiver.DoesNotExist:
                 WordReceiver(receiver=receiver, name=word, ranking=score).save()
 
     return True
@@ -277,6 +290,7 @@ def get_top_three(receiver):
 
 
 def create_product(receiver, amazon_product):
+    # This looks really similar to init_products(), could make this DRYer
     try:
         price = amazon_product.price_and_currency[0]  #(30.0,'USD')
     except:
@@ -341,7 +355,7 @@ def create_productreceiver(request, receiver_id, score, asin):
     receiver = Receiver.objects.get(pk=int(receiver_id))
     try:
         product_receiver = ProductReceiver.objects.get(product__asin=asin, receiver=receiver)
-    except:
+    except ProductReceiver.DoesNotExist:
         product_receiver = ProductReceiver(product=product, receiver=receiver, score=score).save()
 
     #a  product has been added to the receiver list, must create and rank the words
@@ -378,6 +392,7 @@ def update_history(request, receiver_id):
 @login_required()
 @csrf_exempt
 def get_top_recommendations(request, receiver_id):
+    # This function also seems simlar to init_receiver_page(), could make this DRYer
     print "in top_recommendations"
     receiver = Receiver.objects.get(pk=int(receiver_id))
     products = Product.objects.all()
