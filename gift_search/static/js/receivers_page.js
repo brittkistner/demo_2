@@ -1,7 +1,7 @@
 $(document).ready(function(){
 var receiverID;
 
-
+    // Need to clean up the console.log statements
     $(".ranking").on("click", function(){
         console.log("click")
         var rank = $(this).attr("id");
