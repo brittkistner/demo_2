@@ -10,11 +10,13 @@
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
         <link rel="stylesheet" type="text/css" href="{% static 'css/base.css' %}">
+	    <link rel="stylesheet" href="{% static 'css/top_rec.css' %}">
 
 {#        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js" type="text/javascript"></script>#}
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
         <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css" />
+        <link href='http://fonts.googleapis.com/css?family=Corben:400,700|Montserrat:400,700|Ultra|Ewert' rel='stylesheet'>
         {% block header %}{% endblock header %}
     </head>
     <body>
@@ -28,14 +30,14 @@
                     <span class="icon-bar"></span>
                   </button>
                 </div>
-                <a class="navbar-brand" href="#">GIFT SHERPA</a>
+                <a class="navbar-brand" href="{%  url 'login' %}">GIFT SHERPA</a>
                 <div class="collapse navbar-collapse" id="navbar-collapse-1">
                   <ul class="nav navbar-nav navbar-left">
 {#                    <li><a href="#">RESTAURANTS</a></li>#}
                   </ul>
                   <ul class="nav navbar-nav navbar-right">
                     {% if user.is_authenticated %}
-                        <li><a href="{% url 'receivers' %}">Friends</a></li>
+                        <li><a href="{% url 'receivers' %}">FRIENDS</a></li>
                         <li><a href="{% url 'logout' %}">LOGOUT</a></li>
                         <li><a href="#">ABOUT</a></li>
 
@@ -49,14 +51,15 @@
       </nav>
       <div class="container-fluid">
         <div class="row">
-            <div class="col-md-2" id="cartoon_baloons">
+            <div class="col-sm-3" id="cartoon_baloons">
             </div>
-            <div class="col-md-10">
-              <div id="wrap" class="container-fluid clear-top">
+            <div class="col-sm-9">
+              <div id="wrap" class="container-fluid">
                   {% block content %}{% endblock content %}
               </div>
             </div>
         </div>
       </div>
+      <script src="{% static 'js/salvattore.js' %}"></script>
     </body>
 </html>

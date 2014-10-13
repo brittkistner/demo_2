@@ -1,2 +1,11 @@
-{% for product_tuple in top_products %}
-<p>{{ product_tuple[0].name}}</p>
+<div id="posts" data-columns>
+    {% for product_tuple in top_products %}
+        <div class="post col-sm-3">
+            <a href="{{ product_tuple.0.link }}"><img src="{{ product_tuple.0.image_url }}"></a>
+            <p id="post-tag">
+                {{ product_tuple.0.name }}<span>|</span>
+                {{ product_tuple.0.price }}
+            </p>
+        </div>
+    {% endfor %}
+</div>

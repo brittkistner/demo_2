@@ -3,7 +3,6 @@ var receiverID;
 
 
     $(".ranking").on("click", function(){
-        console.log('click')
         var rank = $(this).attr("id");
         console.log(rank);
         receiverId = location.pathname.split('/')[2]; //string
@@ -15,11 +14,12 @@ var receiverID;
             type: 'POST',
             success: function(response){
                 console.log(response);
-                console.log('success');
                 //update history
                 updateHistory();
                 //update topRecommendations
                 updateRecommendations();
+                //get the next product to rank
+                getNextProduct();
             },
             error: function(response){
                 console.log(response.body);
@@ -32,14 +32,12 @@ var receiverID;
                 url: '/update_history/' + receiverId + '/',
                 type: 'GET',
                 success: function(response) {
-                    console.log('success');
                     $('#history').html(response);
                 },
                 error: function(response) {
                     console.log(response.body);
                 }
-            });
-
+        });
     };
 
     var updateRecommendations = function(){
@@ -47,13 +45,26 @@ var receiverID;
                 url: '/top_recommendations/' + receiverId +'/',
                 type: 'GET',
                 success: function(response) {
-                    console.log('success');
+                    console.log('top');
                     $('#top_recommendations').html(response);
                 },
                 error: function(response) {
                     console.log(response.body);
                 }
-            });
+        });
+    };
 
-    }
+    var getNextProduct = function(){
+        $.ajax({
+                url: '/get_next_product/',
+                type: 'GET',
+                success: function(response) {
+                    console.log('rank_product');
+                    $('#product_rank').html(response);
+                },
+                error: function(response) {
+                    console.log(response.body);
+                }
+         });
+    };
 });

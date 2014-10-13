@@ -10,7 +10,7 @@ class User(AbstractUser):
 
 class Receiver(models.Model):
     user = models.ForeignKey(User, related_name="receivers")
-    name = models.CharField(max_length=30)
+    name = models.TextField()
     birthday = models.DateField() #what will this look like?
     age = models.IntegerField(default=None)
     img = models.ImageField(upload_to='receiver_images', blank=True, null=True)
@@ -31,9 +31,10 @@ class Product(models.Model):
     receivers = models.ManyToManyField(Receiver, through="ProductReceiver", related_name="products",default=None)
     asin = models.CharField(max_length=30, primary_key=True)
     price = models.FloatField(null=True)
-    image_url = models.CharField(max_length=255, null=True)
-    name = models.CharField(max_length=255, null=True)
+    image_url = models.TextField(null=True)
+    name = models.TextField(null=True)
     review = models.TextField(default=None)
+    link = models.TextField(null=True)
 
     def __unicode__(self):
         return u"{}".format(self.name)

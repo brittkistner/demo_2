@@ -9,21 +9,22 @@
 <link type="text/css" rel="stylesheet" href="{% static 'css/home_login.css' %}" />
 {% endblock header %}
 {% block content %}
-    <div class="container">
-        <div class="well">
+        <div class="jumbotron">
             <div class="row info">
-                <h2>HEADER AND SOME OTHER STUFF</h2>
-                <p>
-                    Pivot disrupt minimum viable product viral entrepreneur engaging ideate entrepreneur ship it pair programming. Engaging personas big data actionable insight thinker-maker-doer earned media experiential. Disrupt moleskine viral thought leader big data disrupt pivot human-centered design actionable insight Steve Jobs. Long shadow ship it user centered design engaging unicorn SpaceTeam actionable insight workflow intuitive SpaceTeam ship it latte grok entrepreneur.
-                </p>
+                <h2>Don't miss a friends birthday every again.</h2>
+                <ul>
+                    <li>Login</li>
+                    <li>Add a friend to track a birthday</li>
+                    <li>Rate some products</li>
+                </ul>
+            </div>
+            <div class="row login">
+                <div class="col-sm-4 col-sm-offset-5">
+                     <a id="modal_trigger" href="#modal" class="btn btn-default btn-lg">Login/Register</a>
+                </div>
             </div>
         </div>
-        <div class="row login">
-            <div class="col-sm-4 col-sm-offset-5">
-                 <a id="modal_trigger" href="#modal" class="btn btn-default btn-lg">Login/Register</a>
-            </div>
-        </div>
-    </div>
+
 
 {###### MODAL ######}
     <div id="modal" class="popupContainer" style="display:none;">

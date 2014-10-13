@@ -6,17 +6,31 @@ height:100%;
 body
 {
 min-height: 100%;
-background-image:url('../img/silver_scales.png');
-/*background-position: center;*/
-/*background-size: cover;*/
+background-image:url('../img/cardboard_flat.png');
 width: 100%;
+font-family: 'Montserrat', sans-serif;
 }
 
 #cartoon_baloons{
     min-height: 100%;
     background-image:url('../img/cartoon_baloons.png');
-    /*background-position: ;*/
-    /*background-size: cover;*/
+    background-size: cover;
     background-repeat: no-repeat;
-    width: 100%;
+    /*border: 1px solid blue;*/
 }
+
+
+.navbar-brand{
+    font-weight: bold;
+    font-family: 'Ewert', cursive;
+    font-size: 36px;
+    color: #23686C !important;
+}
+
+
+/*colors:*/
+/*color: #9f447e*/
+/*color:#521B3E*/
+/*color: #23686C*/
+/*color: #59E4EB*/
+/*color: #ACA05B*/

@@ -26,17 +26,13 @@ urlpatterns = patterns('',
     url(r'^update_history/(?P<receiver_id>\w+)/$', 'gift_search.views.update_history', name='update_history'),
     #Top Recommendations
     url(r'^top_recommendations/(?P<receiver_id>\w+)/$', 'gift_search.views.get_top_recommendations', name='get_top_recommendations'),
-
-
-
-
-    # url(r'^get_gifts/(?P<receiver_id>\w+)/$', 'gift_search.views.get_gifts', name='get_gifts'),
+    #Get Next Product To Rank
+    url(r'^get_next_product/$', 'gift_search.views.get_next_product', name='get_next_product'),
 
     # PYTHON SOCIAL AUTH #
     # url('', include('social.apps.django_app.urls', namespace='social')),
     url(r'^admin/', include(admin.site.urls)),
 )
-# (?P<date>.*)
 
 
 if settings.DEBUG:

@@ -1,5 +1,7 @@
+import datetime
 import json
 from django.contrib.auth import authenticate, login
+from django.contrib.auth.decorators import login_required
 from django.core import serializers
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
@@ -8,11 +10,14 @@ from amazon.api import AmazonAPI
 # from social.backends.google import GooglePlusAuth
 from django.views.decorators.csrf import csrf_exempt
 from demo2.settings import AMAZON_ASSOC_TAG, config, AMAZON_SECRET_KEY, \
-    AMAZON_ACCESS_KEY  # SOCIAL_AUTH_GOOGLE_PLUS_KEY,
+    AMAZON_ACCESS_KEY, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_ASSOCIATE_TAG  # SOCIAL_AUTH_GOOGLE_PLUS_KEY,
 import amazonproduct
-from gift_search.forms import EmailUserCreationForm
+from gift_search.forms import EmailUserCreationForm, CreateReceiver
 from gift_search.models import Product, WordReceiver, Receiver, ProductReceiver, Feature
 import random
+import bottlenose
+from xml.dom import minidom
+
 
 # plus_scope = ' '.join(GooglePlusAuth.DEFAULT_SCOPE)
 amazon = AmazonAPI(AMAZON_ACCESS_KEY, AMAZON_SECRET_KEY, AMAZON_ASSOC_TAG)
@@ -47,40 +52,169 @@ def register(request):
     })
 
 
-def add_friend(request):
-    pass
-
+# def add_receiver(request):
+#     data = {"create_receiver": CreateReceiver()}
+#     if request.method == "POST":
+#         form = CreateReceiver(request.POST, request.FILES)
+#         if form.is_valid():
+#             receiver = Receiver(user=request.user,
+#                      name=form.cleaned_data['name'],
+#                      birthday=form.cleaned_data['birthday'],
+#                      age=form.cleaned_data['age'],
+#                      img=form.cleaned_data)
+#             response = serializers.serialize('json', [receiver])
+#             return HttpResponse(response, content_type='application/json')
+#         else:
+#             data = {"create_receiver": CreateReceiver()}
+#             return render(request, "add_receiver_form.html",data)
+#
+#     return render(request, "add_receiver_form.html")
 
 ############################
 # DISPLAY USER'S RECEIVERS #
 ############################
-
+@login_required()
 def receivers(request):
+    today = datetime.date.today()
+    end_date = today + datetime.timedelta(days=31)
     user = request.user
-    receivers = user.receivers.all()
-    print receivers
+    receiver_list = user.receivers.all()
+    birthday_receivers = []
+    for receiver in receiver_list:
+        birthday_no_year = receiver.birthday
+        birthday_no_year=birthday_no_year.replace(year=today.year)
+        print birthday_no_year
+        if birthday_no_year >= today and birthday_no_year <= end_date:
+            birthday_receivers.append(receiver)
     data = {
-        'receivers': receivers
+        'receivers': birthday_receivers
     }
     return render(request, "receivers.html", data)
+
+####################
+# Get Product URL #
+####################
+
+# def getText(nodelist):
+#     rc = []
+#     for node in nodelist:
+#         if node.nodeType == node.TEXT_NODE:
+#             rc.append(node.data)
+#     return ''.join(rc)
+#
+# def get_url(item_id):
+#     amazon = bottlenose.Amazon(AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_ASSOCIATE_TAG)
+#     item = amazon.ItemLookup(ItemId=item_id)
+#     tree = minidom.parseString(item)
+#     detail = tree.getElementsByTagName("DetailPageURL")[0]
+#     link = "{}".format(getText(detail.childNodes))
+#     time.sleep(1)
+#     return link
+
+####################
+# LOAD NEW PRODUCT #
+####################
+
+
+def init_products(receiver):
+
+    #ITEM LOOKUP-Python Amazon Simple Product API#
+    item_ids = {'Books':'1423146735',
+                'Music':'B00MRHANNI',
+                'Mens':'B00INNBILG',
+                'Womens': 'B00KGT9GUU',
+                'Electronics': 'B00DR0PDNE',
+                'Gourmet Food': 'B008UOUGN4',
+                'Movies & TV': 'B00NTSYP3S',
+                "Women's Jewelry": 'B00BC4IR0I',
+                'Sports & Outdoors':'B004J2GUOU',
+                'Toys & Games': 'B004S8F7QM',
+                'Video Games': 'B00DD0B1R0',
+                }
+
+    #Creates Product instance for each item. Iterates through item_ids, creating products.
+    # After product created, sent to create_words function to create a word instance for the features list.
+    # This features list will then be incremented or decremented based on user feedback.
+
+    for item in item_ids:
+        amazon_product = amazon.lookup(ItemId=item_ids[item])
+        # product.get_attribute('ProductGroup')
+        try:
+            price = amazon_product.price_and_currency[0]  #(30.0,'USD')
+        except:
+            return False
+        try:
+            image_url = amazon_product.large_image_url
+        except:
+            return False
+        name = amazon_product.title
+        if name == None:
+            return False
+        asin = amazon_product.asin
+        try:
+            link = amazon_product._safe_get_element_text('DetailPageURL')
+        except:
+            return False
+        product = Product(asin=asin, price=price, image_url=image_url, name=name, review="N/A", link=link)
+        product.save()
+        if amazon_product.features:
+            features_list = amazon_product.features
+            for feature in features_list:
+                Feature(product=product, feature=feature).save()
+        elif amazon_product.editorial_review:
+            review = amazon_product.editorial_review
+            product.review = review
+            product.save()
+        time.sleep(.25)
+
+    return True
+
+
+
+#########################
+# Initial Receiver Page #
+#########################
+def init_receiver_page(receiver):
+    data = {}
+    all_products = Product.objects.all()
+    length = len(all_products)
+    product_to_rank = all_products[random.randrange(length)]
+    data['product_to_rank'] = product_to_rank
+    # Product History #
+    product_history = receiver.products.all()
+    data['product_history'] = product_history
+    # Top Products #
+    products_list = []
+    for product in all_products:
+        score = 0
+        product_words = product.words()
+        for receiver_word in receiver.words.all():
+            if receiver_word.name in product_words:
+                score += receiver_word.ranking * product_words[receiver_word.name]
+        products_list.append((product, score))
+    products_list = sorted(products_list, key=lambda x: x[1])
+    products_list = filter(lambda x: x[0] not in receiver.products.all(), products_list)
+    top_products = products_list[:3]
+    data['top_products'] = top_products
+
+    return data
 
 
 #####################################
 # DISPLAY RECEIVER PROFILE FOR USER #
 #####################################
 
+@login_required()
 def receiver_page(request, receiver_id):
-    product_list = Product.objects.all()
     receiver = Receiver.objects.get(pk=receiver_id)
-    length = len(product_list)
-    product_to_rank = product_list[random.randrange(length)]
-    products = receiver.products.all()
-    data = {
-        'product_to_rank': product_to_rank,
-        'products': products
-    }
+    gift_card = amazon.lookup(ItemId='B00A48G0D4')
+    if Product.objects.all():
+        data = init_receiver_page(receiver)
+    else:
+        init_products(receiver)
+        data = init_receiver_page(receiver)
+    data["gift_card"] = gift_card
     return render(request, "receivers_page.html", data)
-
 
 #####################
 # RANKING A PRODUCT #
@@ -132,6 +266,7 @@ def create_words(receiver, asin, score):
 
     return True
 
+
 #Query on words for top three
 def get_top_three(receiver):
     print "in top three"
@@ -141,22 +276,37 @@ def get_top_three(receiver):
 
 
 def create_product(receiver, amazon_product):
-    print amazon_product
-    price = amazon_product.price_and_currency[0]  #(30.0,'USD')
-    image_url = amazon_product.large_image_url
+    try:
+        price = amazon_product.price_and_currency[0]  #(30.0,'USD')
+    except:
+        return False
+    try:
+        image_url = amazon_product.large_image_url
+    except:
+        return False
     name = amazon_product.title
+    if name == None:
+        return False
     asin = amazon_product.asin
-    product = Product(asin=asin, price=price, image_url=image_url, name=name, review="N/A")
+    try:
+        link = amazon_product._safe_get_element_text('DetailPageURL')
+    except:
+        return False
+    product = Product(asin=asin, price=price, image_url=image_url, name=name, review="N/A", link=link)
     product.save()
-    if amazon_product.features:
-        features_list = amazon_product.features
-        for feature in features_list:
-            Feature(product=product, feature=feature).save()
-    elif amazon_product.editorial_review:
-        review = amazon_product.editorial_review
-        product.review = review
-        product.save()
-    time.sleep(1)
+    try:
+        if amazon_product.features:
+            features_list = amazon_product.features
+            for feature in features_list:
+                Feature(product=product, feature=feature).save()
+        elif amazon_product.editorial_review:
+            review = amazon_product.editorial_review
+            product.review = review
+            product.save()
+    except:
+        return False
+
+
 
     return True
 
@@ -167,38 +317,43 @@ def get_products_from_Amazon_update_create_product(word_list):
     products = Product.objects.all()
     for word in word_list:
         print word.name
-        new_products = amazon.search(Keywords=word.name, SearchIndex='All')
+        # new_products = amazon.search(Keywords=word.name, SearchIndex='All')
+        new_products = amazon.search(Keywords=word.name, SearchIndex='Blended')
         for i, product in enumerate(new_products):
             try:
                 product = Product.objects.get(asin=product.asin)
             except:
                 create_product(receiver, product)
-        return True
+    print "end get_new_proudcts"
+    return True
 
-
+@login_required()
 @csrf_exempt
 def create_productreceiver(request, receiver_id, score, asin):
-    #MAKE COMMENT
+    if score == "up":
+        score = 1
+    else:
+        score = -1
+    #COMMENT HERE
     print 'made it to productreceiver'
     print receiver_id
+    product=Product.objects.get(asin=asin)
+    print product
     receiver = Receiver.objects.get(pk=int(receiver_id))
     try:
         product_receiver = ProductReceiver.objects.get(product__asin=asin, receiver=receiver)
-        print "break1"
     except:
-        product_receiver = ProductReceiver(product=Product.objects.get(asin=asin), receiver=receiver).save()
-        print "break2"
+        product_receiver = ProductReceiver(product=product, receiver=receiver, score=score).save()
 
     #a  product has been added to the receiver list, must create and rank the words
     create_words(receiver, asin, score)
 
     #Returns Top 3 Ranking words
     word_list = get_top_three(receiver)
-    print word_list
 
     #Search Amazon for products given word_list
     get_products_from_Amazon_update_create_product(word_list)
-
+    print "back in create_productreceiver"
     # response = serializers.serialize('json', [True])
     return HttpResponse('true', content_type='application/json')
 
@@ -206,8 +361,10 @@ def create_productreceiver(request, receiver_id, score, asin):
 ##################
 # UPDATE HISTORY #
 ##################
+@login_required()
 @csrf_exempt
 def update_history(request, receiver_id):
+    print "in update_history"
     receiver = Receiver.objects.get(pk=int(receiver_id))
     products = receiver.products.all()
     data = {
@@ -221,8 +378,10 @@ def update_history(request, receiver_id):
 ##########################
 # UPDATE RECOMMENDATIONS #
 #########################
-# @csrf_exempt
+@login_required()
+@csrf_exempt
 def get_top_recommendations(request, receiver_id):
+    print "in top_recommendations"
     receiver = Receiver.objects.get(pk=int(receiver_id))
     products = Product.objects.all()
     products_list = []
@@ -240,13 +399,22 @@ def get_top_recommendations(request, receiver_id):
         print product_tuple[0]
 
     data = {
-        'top_products' : top_products
+        'top_products': top_products
     }
     return render(request, "top_products.html", data)
 
-    ####################
-    # LOAD NEW PRODUCT #
-    ####################
+
+####################
+# GET NEXT PRODUCT #
+####################
+def get_next_product(request):
+    data = {}
+    all_products = Product.objects.all()
+    length = len(all_products)
+    product_to_rank = all_products[random.randrange(length)]
+    data['product_to_rank'] = product_to_rank
+
+    return render(request, "product_to_rank.html", data)
 
 
 
@@ -262,55 +430,6 @@ def get_top_recommendations(request, receiver_id):
 
 
 
-
-    # def get_gifts(request, receiver_id=2):
-    #     receiver = Receiver.objects.get(pk=receiver_id)
-    #
-    #
-    #     #ITEM LOOKUP-Python Amazon Simple Product API#
-    #     item_ids = {'Books':'1423146735',
-    #                 'Music':'B00MRHANNI',
-    #                 'Mens':'B00INNBILG',
-    #                 'Womens': 'B00KGT9GUU',
-    #                 'Electronics': 'B00DR0PDNE',
-    #                 'Gourmet Food': 'B008UOUGN4',
-    #                 'Movies & TV': 'B00NTSYP3S',
-    #                 "Women's Jewelry": 'B00BC4IR0I',
-    #                 'Sports & Outdoors':'B004J2GUOU',
-    #                 'Toys & Games': 'B004S8F7QM',
-    #                 'Video Games': 'B00DD0B1R0',
-    #                 }
-    #
-    #     #Creates Product and Word instances for each item. Iterates through item_ids, creating products.
-    #     # After product created, sent to create_words function to create a word instance for the features list.
-    #     # This features list will then be incremented or decremented based on user feedback.
-    #     products_dict = {}
-    #     for item in item_ids:
-    #         receiver = Receiver.objects.get(pk=receiver_id)
-    #         amazon_product = amazon.lookup(ItemId=item_ids[item])
-    #         price = amazon_product.price_and_currency[0] #(30.0,'USD')
-    #         image_url = amazon_product.large_image_url
-    #         name = amazon_product.title
-    #         asin = amazon_product.asin
-    #         product = Product(asin=asin, price=price, image_url=image_url, name=name, review="N/A").save()
-    #         if amazon_product.features != []:
-    #             features_list = amazon_product.features
-    #             for feature in features_list:
-    #                 Feature(product=product, feature=feature).save()
-    #         elif amazon_product.editorial_review !=[]:
-    #             review = amazon_product.editorial_review
-    #             product.review = review
-    #             product.save()
-    #         products_dict[asin]= product
-    #         ProductReceiver(product=product,receiver=receiver).save()
-    #         time.sleep(1)
-    #
-    #     data = {
-    #        'products': products_dict
-    #     }
-    #
-    #     print data
-    #     return render(request, "get_gifts.html", data)
 
 
 

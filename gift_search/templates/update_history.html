@@ -1,7 +1,8 @@
+<div class="col-sm-12">
 {% for product in products %}
-    <div>
-        {{ product.name }}
-        {{ product.image_url }}
-        {{ product.price }}
+    <div class="row">
+        <img src="{{ product.image_url }}" class="img-thumbnail img-responsive img-history">
+{#    link back to amazon#}
     </div>
 {% endfor %}
+</div>

@@ -1,0 +1,10 @@
+#all_friends span{
+    color: #521B3E !important;
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+#all_friends p{
+    font-size: 0.9em;
+    font-weight: bold;
+}

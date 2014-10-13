@@ -25,3 +25,18 @@ class EmailUserCreationForm(UserCreationForm):
             self.error_messages['duplicate_username'],
             code='duplicate_username',
         )
+
+class CreateReceiver(forms.Form):
+    name = forms.CharField(label="Birthday Buddy")
+    birthday = forms.DateField() #need to fix this
+    age = forms.IntegerField(label="5")
+    img = forms.ImageField()
+
+
+
+    # class Receiver(models.Model):
+    # user = models.ForeignKey(User, related_name="receivers")#i will input
+    # name = models.CharField(max_length=30)
+    # birthday = models.DateField() #what will this look like?
+    # age = models.IntegerField(default=None)
+    # img = models.ImageField(upload_to='receiver_images', blank=True, null=True)
