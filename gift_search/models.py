@@ -31,6 +31,7 @@ class Product(models.Model):
     receivers = models.ManyToManyField(Receiver, through="ProductReceiver", related_name="products",default=None)
     asin = models.CharField(max_length=30, primary_key=True)
     price = models.FloatField(null=True)
+    # Could use a URLField
     image_url = models.TextField(null=True)
     name = models.TextField(null=True)
     review = models.TextField(default=None)
@@ -41,6 +42,8 @@ class Product(models.Model):
 
     def words(self):
         word_dict = {}
+        # The `for word in word_list:` blocks of code could be pulled out into a separate function to be more DRY
+        # Each if statement could just past the appropriate list to the function to be processed
         if self.features:
             features_list = self.features.all()
             for feature in features_list:
