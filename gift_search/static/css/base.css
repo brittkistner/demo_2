@@ -16,6 +16,7 @@ font-family: 'Montserrat', sans-serif;
     background-image:url('../img/cartoon_baloons.png');
     background-size: cover;
     background-repeat: no-repeat;
+    background-position: center;
     /*border: 1px solid blue;*/
 }
 

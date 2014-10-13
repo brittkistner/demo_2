@@ -1,10 +1,45 @@
+#all_friends{
+    margin: 10% 0 0 1%;
+}
+
+
+#all_friends img{
+    border: 7px solid #23686C;
+}
+
+
 #all_friends span{
-    color: #521B3E !important;
+    padding: 1%;
+    color: #9f447e !important;
     font-size: 1.2em;
     font-weight: bold;
 }
 
 #all_friends p{
-    font-size: 0.9em;
+    font-size: 1em;
     font-weight: bold;
+}
+
+#list_receivers{
+    /*background-color: rgba(35, 104, 108, 0.1);*/
+    border-left: 2px solid rgba(35, 104, 108, 0.3);
+    /*border-radius: 10px;*/
+    height:80%;
+    padding: 5%;
+}
+
+#add_friend{
+    margin: 15% 0 15% 1%;
+}
+
+h3{
+    font-size: 2em;
+    font-weight: bold;
+    /*color: #9f447e;*/
+    color: #23686C;
+    font-style: italic;
+}
+
+#header_all_friends{
+    border-bottom: 1px solid gainsboro;
 }

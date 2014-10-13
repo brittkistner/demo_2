@@ -6,32 +6,28 @@
     <script type="text/javascript" src="{% static 'js/receivers.js' %}"></script>
 {% endblock header %}
 {% block content %}
-    <div class="row">
-        <div class="col-sm-8">
-            <h3 class="text-left">Shop Soon!  Your friends below have a birthday in less than a month.</h3>
+<div class="container" id="list_receivers">
+    <div class="row" id="header_all_friends">
+        <div class="col-sm-11">
+            <h3 class="text-center">SHOP SOON, THESE FRIENDS HAVE A BIRTHDAY COMING UP!</h3>
         </div>
     </div>
-
     <div id="all_friends" class="row">
         {% for receiver in receivers %}
         <div class="col-sm-3">
             <img src="{{ receiver.img.url }}" class="img-responsive img-rounded">
             <p>{{ receiver.name }} <span>|</span>  {{ receiver.birthday }}</p>
-{#            how many days away??#}
-{#            <button class="purchase_gift" id="{{ receiver.id }}">Purchase Top Recommended Gift</button>#}
-{#            <button type="button" class="receiver_page btn btn-default" id="{{ receiver.id }}"><a type="button" class="receiver_page btn btn-default" id="{{ receiver.id }}" href="{% url "receiver_page" receiver.id %}">Find Gift</a></button>#}
+    {#            how many days away??#}
             <a type="button" class="receiver_page btn btn-default" id="{{ receiver.id }}" href="{% url "receiver_page" receiver.id %}">Find Gift</a>
         </div>
         {% endfor %}
     </div>
-
-
-
-
-    <div class="row text-right">
-        <button id="add_friend" type="button" class="btn btn-default btn-lg">ADD FRIEND</button>
+    <div class="row">
+        <div class="col-sm-12">
+            <button id="add_friend" type="button" class="btn btn-default btn-lg">ADD FRIEND</button>
+        </div>
     </div>
-
+</div>
 
 
 

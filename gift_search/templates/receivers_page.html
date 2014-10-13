@@ -4,87 +4,78 @@
 {% block header %}
     <link rel="stylesheet" type="text/css" href="{% static 'css/history.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'css/receivers_page.css' %}">
-{#    <link rel="stylesheet" type="text/css" href="{% static 'css/top_rec.css' %}">#}
     <script type="text/javascript" src="{% static 'js/receivers_page.js' %}"></script>
 {% endblock header %}
 {% block content %}
-{#<h2>Product to Rank</h2>#}
-{##}
-{#<img src="{{ product_to_rank.image_url }}" width="200" height="200" class='giftToRank' data-id="{{ product_to_rank.asin }}">#}
-{#<h4>{{ product_to_rank.name }}</h4>#}
-{#<button class="ranking" id="up">Like</button>#}
-{#<button class="ranking" id="down">Dislike</button>#}
-{##}
-{##}
-{#<h2>History</h2>#}
-{#{% for product in products %}#}
-{#<p>{{ product.name }}</p>#}
-{#<img src="{{ product.image_url }}" width="200" height="200" class='history'>#}
-{#{{ product.price }}#}
-{#    add product score#}
-{#{% endfor %}#}
-{#<div id="history">#}
-{##}
-{#</div>#}
-{##}
-{##}
-{#<h2>Top Receommendations</h2>#}
-{#<div id="top_recommendations">#}
-{##}
-{#</div>#}
-<div class="row" style="border:2px solid red;">
-    <div class="col-sm-10" style="border:2px solid black;">
-        <div class="row">
-            <h4>Recommended Products</h4>
-            <p>
-                Click on an image to purchase from Amazon.
-            </p>
+{#    {% for product in top_products %}#}
+{#          {{% if product.0.link %}}#}
+{#               <h1>NAME</h1> {{ product.0.name }}#}
+{#                <h1>LINK</h1> {{ product.0.link }}#}
+{#                <h1>URL</h1>{{ product.0.image_url }}#}
+{#                <a href="{{ product.0.link }}"><img src="{{ product.0.image_url }}"></a>#}
+{#          {{% endif %}}#}
+{#    {% endfor %}#}
+<div class="row" id="receivers_page">
+    <h2>CLICK AN IMAGE TO PURCHASE.</h2>
+    <h2>OR RATE TO GET BETTER RECOMMENDATIONS.</h2>
+    <div class="col-sm-10" id="products">
+        <div class="row" id="top">
             <div class="col-sm-9" id="top_recommendations">
-                <div id="posts" data-columns>
-                    {% for product_tuple in top_products %}
-                        <div class="post col-sm-3">
-                        {% if product.link %}
-                            <a href="{{ product.link }}"><img src="{{ product_tuple.0.image_url }}"></a>
-                        {% else %}
-                            <img src="{{ product_tuple.0.image_url }}">
-                        {% endif %}
-                            <p id="post-tag">
-                                {{ product_tuple.0.name }}<span>|</span>
-                                {{ product_tuple.0.price }}
-                            </p>
-                        </div>
-                    {% endfor %}
-                </div>
+                <h4>Recommendations for {{ receiver.name }}</h4>
+                {% if top_products %}
+                   {% for product in top_products %}
+{#                    <div id="posts">#}
+{#                    HELLO#}
+{#                    </div>#}
+                    <div class="post col-sm-3">
+                    {% if product.0.link %}
+                        <a href="{{ product.0.link }}"><img src="{{ product.0.image_url }}"></a>
+                    {% else %}
+                        <img src="{{ product_tuple.0.image_url }}">
+                    {% endif %}
+                        <p id="post-tag">
+                            {{ product.0.name }}<span>|</span>
+                            ${{ product.0.price }}
+                        </p>
+                    </div>
+                {% endfor %}
+{#                </div>#}
+                {% else %}
+                    <p>
+                        PLEASE RATE SOME PRODUCTS SO WE CAN MAKE SOME RECOMMENDATIONS.
+                    </p>
+                {% endif %}
             </div>
-            <div class="col-sm-3" style="border:2px solid black;">
+            <div class="col-sm-2 gift_card">
                 <div class="row">
-                    gift card img
+                    <h4>...OR EVERYBODY LOVES A GIFT CARD</h4>
+                    <div class="col-s-12">
+                        <a href="{{ gift_card.link }}"><img src="{{ gift_card.image_url }}" class="img-thumbnail img-responsive img-gift_card"></a>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="row" style="border:2px solid black;">
-            <p>
-                Rate products and get better recommendations.
-            </p>
-            <div class="col-xs-6 col-xs-offset-3 col-sm-6 col-sm-offset-3 col-md-6 col-md-offset-3 col-lg-6 col-lg-offset-3" style="border:2px solid black;" id="product_rank">
+        <hr>
+        <div class="row" id="gift_to_rank">
+            <h4>What will {{ receiver.name }} think about this gift?</h4>
+            <div class="col-xs-6 col-xs-offset-3 col-sm-6 col-sm-offset-3 col-md-6 col-md-offset-3 col-lg-6 col-lg-offset-4">
                 <div class="row">
-                    <a href="{{ product_to_rank.link }}"#><img src="{{ product_to_rank.image_url }}" width="200" height="200" class='giftToRank img-responsive' data-id="{{ product_to_rank.asin }}" alt="Responsive image"></a>
-
+                    <div class="col-sm-6" id="product_rank">
+                            <a href="{{ product_to_rank.link }}"><img src="{{ product_to_rank.image_url }}" class='giftToRank img-responsive' data-id="{{ product_to_rank.asin }}" alt="Responsive image"></a>
+                            <h7>{{ product_to_rank.name }}</h7><span>|</span>
+                            <h7>${{ product_to_rank.price }}</h7>
+                    </div>
                 </div>
-                <div class="row">
-                    <h7>{{ product_to_rank.name }}</h7><span>|</span>
-                    <h7>{{ product_to_rank.price }}</h7>
-                </div>
-                <div class="row">
+                <div class="row" id="rank_buttons">
                     <button type="button" class="ranking btn btn-default btn-sm" id="up">Like</button>
                     <button type="button" class="ranking btn btn-default btn-sm" id="down">Dislike</button>
                 </div>
             </div>
         </div>
     </div>
-    <div class="col-sm-2" style="border:2px solid green;" id="scroll">
+    <div class="col-sm-2" id="scroll">
         <div class="row">
-            <h5>Rating History</h5>
+            <h4 class="text-center">Rating History</h4>
         </div>
         <div class="row" id="history">
            <div class="col-sm-12">
@@ -95,7 +86,6 @@
             {% endfor %}
             </div>
         </div>
-{#        Appending update_history.html#}
     </div>
 </div>
 

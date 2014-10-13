@@ -20,7 +20,7 @@ class Receiver(models.Model):
 
 class WordReceiver(models.Model):
     receiver = models.ForeignKey(Receiver, related_name="words")
-    name = models.CharField(max_length=30)
+    name = models.CharField(max_length=255)
     ranking = models.IntegerField(default=0)
 
     #think about adding models to increment/decrement rankings.

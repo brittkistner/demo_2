@@ -130,6 +130,7 @@ def init_products(receiver):
                 'Sports & Outdoors':'B004J2GUOU',
                 'Toys & Games': 'B004S8F7QM',
                 'Video Games': 'B00DD0B1R0',
+                'Gift Card': 'B00A48G0D4',
                 }
 
     #Creates Product instance for each item. Iterates through item_ids, creating products.
@@ -195,7 +196,9 @@ def init_receiver_page(receiver):
     products_list = sorted(products_list, key=lambda x: x[1])
     products_list = filter(lambda x: x[0] not in receiver.products.all(), products_list)
     top_products = products_list[:3]
+    print top_products[0][0]
     data['top_products'] = top_products
+
 
     return data
 
@@ -207,20 +210,20 @@ def init_receiver_page(receiver):
 @login_required()
 def receiver_page(request, receiver_id):
     receiver = Receiver.objects.get(pk=receiver_id)
-    gift_card = amazon.lookup(ItemId='B00A48G0D4')
     if Product.objects.all():
         data = init_receiver_page(receiver)
     else:
         init_products(receiver)
         data = init_receiver_page(receiver)
+    gift_card = Product.objects.get(asin='B00A48G0D4')
     data["gift_card"] = gift_card
+    data["receiver"] = receiver
     return render(request, "receivers_page.html", data)
 
 #####################
 # RANKING A PRODUCT #
 ####################
 def create_words(receiver, asin, score):
-    print "in word creation"
     if score == "up":
         score = 1
     else:
@@ -269,9 +272,7 @@ def create_words(receiver, asin, score):
 
 #Query on words for top three
 def get_top_three(receiver):
-    print "in top three"
-    word_list = receiver.words.filter(name__iregex=r'^.{7,}$').order_by('ranking')[:3]
-    print word_list
+    word_list = receiver.words.filter(name__iregex=r'^.{5,}$').order_by('ranking')[:3]
     return word_list
 
 
@@ -313,12 +314,12 @@ def create_product(receiver, amazon_product):
 
 def get_products_from_Amazon_update_create_product(word_list):
     #MAKE COMMENT
-    print "in get_new_products"
     products = Product.objects.all()
     for word in word_list:
         print word.name
         # new_products = amazon.search(Keywords=word.name, SearchIndex='All')
         new_products = amazon.search(Keywords=word.name, SearchIndex='Blended')
+        time.sleep(0.25)
         for i, product in enumerate(new_products):
             try:
                 product = Product.objects.get(asin=product.asin)
@@ -335,8 +336,6 @@ def create_productreceiver(request, receiver_id, score, asin):
     else:
         score = -1
     #COMMENT HERE
-    print 'made it to productreceiver'
-    print receiver_id
     product=Product.objects.get(asin=asin)
     print product
     receiver = Receiver.objects.get(pk=int(receiver_id))
@@ -353,8 +352,6 @@ def create_productreceiver(request, receiver_id, score, asin):
 
     #Search Amazon for products given word_list
     get_products_from_Amazon_update_create_product(word_list)
-    print "back in create_productreceiver"
-    # response = serializers.serialize('json', [True])
     return HttpResponse('true', content_type='application/json')
 
 

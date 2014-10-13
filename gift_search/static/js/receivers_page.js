@@ -3,12 +3,14 @@ var receiverID;
 
 
     $(".ranking").on("click", function(){
+        console.log("click")
         var rank = $(this).attr("id");
         console.log(rank);
         receiverId = location.pathname.split('/')[2]; //string
         console.log(receiverId);
         var product_id = $(".giftToRank").data('id');
         console.log(product_id);
+        console.log(rank);
         $.ajax({
             url:'/receiver_page/' + window.receiverId + '/' + rank + '/' + product_id + '/',
             type: 'POST',

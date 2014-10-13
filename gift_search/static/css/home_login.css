@@ -77,10 +77,57 @@
 }
 
 /*****************/
-/*JUMBOTRON*******/
+/*MAIN CONTAINER**/
 /*****************/
-.jumbotron{
-    background-color: rgba(172,160,91,0.1);
-    border-radius:15px;
-    border: 5px inset;
+
+h1{
+    font-weight: bold;
+    font-family: 'Ewert', cursive;
+    font-size: 6em; /*how to make responsive?*/
+    /*color: #23686C !important;*/
 }
+
+h3{
+    font-weight:bold;
+    color: #9f447e;
+}
+
+.step{
+    /*border: 2px solid red;*/
+    /*margin-top:10%;*/
+    margin: 10% 4% 0 4%;
+    padding: 5% 2.5% 5% 2.5%;
+    background-color: rgba(89, 228, 235,0.75);
+    border-radius: 10px;
+}
+
+#steps{
+    height:50%;
+    /*border: 2px solid black;*/
+}
+
+#home_page{
+    height: 80%;
+    /*border: 2px solid green;*/
+    background-image:url('../img/pink_presents.png');
+    /*background-size: cover;*/
+    /*background-position: 30% 20%;*/
+    background-position: right;
+    background-repeat: no-repeat;
+
+}
+
+#login{
+    /*border: 2px solid red;*/
+    margin-top: 5%;
+}
+
+#login a{
+    font-weight: bold;
+}
+/*colors:*/
+/*color: #9f447e*/
+/*color:#521B3E*/
+/*color: #23686C*/
+/*color: #59E4EB*/
+/*color: #ACA05B*/

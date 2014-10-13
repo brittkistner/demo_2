@@ -1,3 +1,156 @@
 #scroll{
     position: relative;
 }
+
+.img-history{
+    margin: 5% 0 0 15%;
+    height:140px;
+    width: 140px;
+    /*height: 140px;*/
+    /*width: 140px;*/
+}
+
+/*.img-gift_card{*/
+   /*margin: 5%;*/
+/*}*/
+
+.gift_card{
+    margin: 0 2% 0 2%;
+    /*border: 2px solid green;*/
+}
+.post img {
+    padding-top: 2%;
+}
+
+#scroll{
+    min-height: 200px;
+    border-left: 1px solid #ACA05B;
+}
+
+#products{
+    min-height: 200px;
+    border-top: 1px solid #ACA05B;
+}
+
+#receivers_page{
+    background-color: rgba(172, 160, 91, 0.2);
+}
+
+/*#top{*/
+    /*background-color: rgba(172, 160, 91, 0.5);*/
+/*}*/
+
+#product_rank span{
+    padding: 2.5%;
+    color: #9f447e !important;
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+#product_rank img{
+    border: 3px solid #ACA05B;
+    max-height: 300px;
+}
+
+#rank_buttons{
+    margin: 0 auto;
+    padding-top: 5%;
+}
+
+#receivers_page h4{
+    text-transform: uppercase;
+    padding-left: 2%;
+    padding-bottom: 4%;
+}
+
+#top_recommendations{
+    /*border: 1px solid blue;*/
+}
+
+#receivers_page h2{
+    color: #23686C;
+    padding-left: 2%;
+    font-style: italic;
+}
+
+
+#gift_to_rank{
+    padding-bottom: 5%;
+}
+
+
+
+/********************/
+/*SALVATORRE*/
+/********************/
+
+#timeline {
+    margin: 50px 0;
+}
+
+.post img {
+    width: 100%;
+}
+
+.post{
+  background: #ffffff;
+  margin: 10px 4%;
+  box-shadow: 0px 0px 20px rgba(0,0,0,0.3);
+  z-index: 999;
+}
+/*
+   Spezific styling for salvattore
+   Feel free to edit it as you like
+   More info at http://salvattore.com
+ */
+
+/* Base styles */
+.column {
+    float: left;
+}
+.size-1of4 {
+    width: 25%;
+}
+.size-1of3 {
+    width: 33.333%;
+}
+.size-1of2 {
+    width: 50%;
+}
+
+/* Configurate salvattore with media queries */
+@media screen and (max-width: 450px) {
+    #timeline[data-columns]::before {
+        content: '1 .column';
+    }
+}
+
+@media screen and (min-width: 451px) and (max-width: 700px) {
+    #timeline[data-columns]::before {
+        content: '2 .column.size-1of2';
+    }
+}
+
+@media screen and (min-width: 701px) and (max-width: 850px) {
+    #timeline[data-columns]::before {
+        content: '3 .column.size-1of3';
+    }
+}
+
+@media screen and (min-width: 851px) {
+    #timeline[data-columns]::before {
+        content: '4 .column.size-1of4';
+    }
+}
+
+
+/* CUSTOME STYLING FOR SALVATORRE  */
+
+.img-top{
+    margin: 5%;
+    height: 240px;
+}
+
+.content-top{
+    margin: 0 auto;
+}
